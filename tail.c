@@ -346,9 +346,8 @@ int main(int argc, char **argv) {
      We need to write all lines in backward order to standard output.
 
   */
-  for (k=lines_len-num_lines; k< lines_len; k++) {
-    i = k - ((size_t) 1);
-    if (my_write(1, lines[i], lines_length[i]) < 0) {
+  for (k = lines_len - num_lines; k < lines_len; k++) {
+    if (my_write(1, lines[k], lines_length[k]) < 0) {
       fprintf(stderr, "Error while reading: %s\n", strerror(errno));
       /* Deallocate everything we allocated */
       __clean_up_memory(current_line, lines, lines_length, lines_len);
