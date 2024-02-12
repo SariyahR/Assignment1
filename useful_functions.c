@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* This function writes len bytes from the buffer buf
    to the file descriptor fd.
@@ -37,5 +38,21 @@ int my_write(int fd, const void *buf, size_t len) {
     bytes_written_this_time = write_res;
   }
   return 0;
+}
+
+
+/* Add a nice description here late, please Sariyah :)*/
+void __clean_up_memory(char *current_line, char **lines,
+			      size_t *lines_length, size_t lines_len) {
+  size_t i;
+  
+  if (current_line != NULL) free(current_line);
+  if (lines != NULL) {
+    for (i=((size_t) 0); i<lines_len; i++) {
+      free(lines[i]);
+    }
+    free(lines);
+    free(lines_length);
+  }
 }
 

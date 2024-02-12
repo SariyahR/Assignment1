@@ -9,19 +9,6 @@
 #define FIRST_ALLOCATION_SIZE            (((size_t) 16))
 #define FIRST_ALLOCATION_LINE_ARRAY_SIZE (((size_t) 16))
 
-static void __clean_up_memory(char *current_line, char **lines,
-			      size_t *lines_length, size_t lines_len) {
-  size_t i;
-  
-  if (current_line != NULL) free(current_line);
-  if (lines != NULL) {
-    for (i=((size_t) 0); i<lines_len; i++) {
-      free(lines[i]);
-    }
-    free(lines);
-    free(lines_length);
-  }
-}
 
 int main(int argc, char **argv) {
   char buffer[BUFFER_SIZE];
