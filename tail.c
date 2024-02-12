@@ -1,50 +1,13 @@
-
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-
+#include "useful_functions.h"
 
 #define BUFFER_SIZE                      (((size_t) 4096))
 #define FIRST_ALLOCATION_SIZE            (((size_t) 16))
 #define FIRST_ALLOCATION_LINE_ARRAY_SIZE (((size_t) 16))
-
-/* This function writes len bytes from the buffer buf
-   to the file descriptor fd.
-
-   It uses write() to accomplish this job.
-
-   It returns 0 if everything went well.
-   It returns a negative number (-1) otherwise.
-
-*/
-static int my_write(int fd, const void *buf, size_t len) {
-  size_t bytes_to_be_written;
-  size_t bytes_already_written;
-  ssize_t write_res;
-  size_t bytes_written_this_time;
-
-  /* If less than 1 byte (hence 0 bytes) to write,
-     we have nothing to do.
-  */
-  if (len < ((size_t) 1)) return 0; 
-
-  /* Loop until all bytes have been written */
-  for (bytes_to_be_written = len, bytes_already_written = (size_t) 0;
-       bytes_to_be_written > (size_t) 0;
-       bytes_to_be_written -= bytes_written_this_time, bytes_already_written += bytes_written_this_time) {
-    write_res = write(fd, &(((char *) buf)[bytes_already_written]), bytes_to_be_written);
-    if (write_res < ((ssize_t) 0)) {
-      /* If write returns a negative value, we 
-	 have a failure condition.
-      */
-      return -1;
-    }
-    bytes_written_this_time = (size_t) write_res;
-  }
-  return 0;
-}
 
 static void __clean_up_memory(char *current_line, char **lines, size_t *lines_length, size_t lines_len) {
   size_t i;
