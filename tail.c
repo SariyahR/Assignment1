@@ -9,7 +9,8 @@
 #define FIRST_ALLOCATION_SIZE            (((size_t) 16))
 #define FIRST_ALLOCATION_LINE_ARRAY_SIZE (((size_t) 16))
 
-static void __clean_up_memory(char *current_line, char **lines, size_t *lines_length, size_t lines_len) {
+static void __clean_up_memory(char *current_line, char **lines,
+			      size_t *lines_length, size_t lines_len) {
   size_t i;
   
   if (current_line != NULL) free(current_line);
@@ -46,6 +47,33 @@ int main(int argc, char **argv) {
   current_line = NULL;
   current_line_size = (size_t) 0;
   current_line_len = (size_t) 0;
+
+
+  /* Default number of lines */
+  int num_lines = 10;
+
+  /* Check if the -n option is provided*/
+  if (argc == 3 && strcmp(argv[1], "-n") == 0) {
+    /* argv[0]: The program name.
+       argv[1]: The -n option.
+       argv[2]: The number of lines argument.
+    */
+    num_lines = atoi(argv[2]);
+    if (num_lines <= 0) {
+      fprintf(stderr, "Error: Invalid number of lines\n");
+      return 1;
+    }
+  } else if (argc != 1) {
+    /* Invalid usage, print error message */
+    fprintf(stderr, "Usage: %s [-n <num>]\n", argv[0]);
+    return 1;
+  }
+
+  /*Process input based on the number of lines specified
+    For now, let's just print out the number of lines */
+  printf("Number of lines: %d\n", num_lines);
+
+  
   for (;;) {
     /* Read the next chunk of data from standard input */
     read_res = read(0, buffer, sizeof(buffer));
@@ -318,7 +346,7 @@ int main(int argc, char **argv) {
      We need to write all lines in backward order to standard output.
 
   */
-  for (k=lines_len-10; k< lines_len; k++) {
+  for (k=lines_len-num_lines; k< lines_len; k++) {
     i = k - ((size_t) 1);
     if (my_write(1, lines[i], lines_length[i]) < 0) {
       fprintf(stderr, "Error while reading: %s\n", strerror(errno));
