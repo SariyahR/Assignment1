@@ -11,6 +11,7 @@
 
 
 int main(int argc, char **argv) {
+  size_t i;
   size_t k;
   /* Default number of lines */
   int num_lines = 10;
@@ -49,19 +50,32 @@ int main(int argc, char **argv) {
     for (k = 0; k < num_lines; k++) {
       if (my_write(1, lines[k], lines_length[k]) < 0) {
 	fprintf(stderr, "Error while reading: %s\n", strerror(errno));
-	/* Deallocate everything we allocated */
+	
+         /* Deallocate everything we allocated */
+	if(lines != NULL) {
+	  for (i=((size_t) 0); i < lineDataPtr->lines_len; i++) {
+	    free(lines[i]);
+	  }
+	  free(lines);
+	  free(lines_length);
+	  free(lineDataPtr->lines);
+	  free(lineDataPtr->lines_length);
+	  free(lineDataPtr);
+	}
 	return 1;
       }
     }
-
-    // Clean up: Free the memory allocated for the LineData object
-    free(lineDataPtr);
     
   } else {
     // Handle the case where get_lines_from_standard_input() returned NULL
     fprintf(stderr, "Error: Failed to read lines from standard input\n");
   }
-  
+
   /* Deallocate everything we allocated */
+  free(lineDataPtr->lines);
+  free(lineDataPtr->lines_length);
+  free(lineDataPtr);
+ 
+  
   return 0;
 }

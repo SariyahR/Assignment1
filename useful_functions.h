@@ -13,8 +13,9 @@
 #define FIRST_ALLOCATION_LINE_ARRAY_SIZE (((size_t) 16))
 
 typedef struct {
-    char **lines;
-    size_t *lines_length;
+  char **lines;
+  size_t *lines_length;
+  size_t lines_len;
 } LineData;
 
 

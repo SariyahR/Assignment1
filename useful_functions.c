@@ -57,6 +57,7 @@ void __clean_up_memory(char *current_line, char **lines,
   }
 }
 
+
 LineData *get_lines_from_standard_input() {
   char buffer[BUFFER_SIZE];
   ssize_t read_res;
@@ -365,6 +366,9 @@ LineData *get_lines_from_standard_input() {
   // Populate the LineData object
   result->lines = lines;
   result->lines_length = lines_length;
+  result->lines_len = lines_len;
+  
+  if (current_line != NULL) free(current_line);
   
   return result; // Return a pointer to the LineData object
 }
