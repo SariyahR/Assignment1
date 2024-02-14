@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 
-
 /* This function writes len bytes from the buffer buf
    to the file descriptor fd.
 
@@ -58,7 +57,7 @@ void __clean_up_memory(char *current_line, char **lines,
   }
 }
 
-LineData get_lines_from_standard_input() {
+LineData *get_lines_from_standard_input() {
   char buffer[BUFFER_SIZE];
   ssize_t read_res;
   size_t amount_new_chars, i, k;
@@ -93,7 +92,7 @@ LineData get_lines_from_standard_input() {
       fprintf(stderr, "Error while reading: %s\n", strerror(errno));
       /* Deallocate everything we allocated */
       __clean_up_memory(current_line, lines, lines_length, lines_len);
-      return 1;
+      return NULL;
     }
 
     /* If we hit EOF, break out of the read loop */
@@ -126,7 +125,7 @@ LineData get_lines_from_standard_input() {
 	    fprintf(stderr, "Error at allocating memory.\n");
 	    /* Deallocate everything we allocated */
 	    __clean_up_memory(current_line, lines, lines_length, lines_len);
-	    return 1;
+	    return NULL;
 	  }
 	  current_line = ptr;
 	} else {
@@ -136,7 +135,7 @@ LineData get_lines_from_standard_input() {
 	    fprintf(stderr, "Error: this system cannot handle lines this long.");
 	    /* Deallocate everything we allocated */
 	    __clean_up_memory(current_line, lines, lines_length, lines_len);
-	    return 1;
+	    return NULL;
 	  }
 	  current_line_size = tmp;
 	  ptr = (char *) realloc(current_line, current_line_size);
@@ -144,7 +143,7 @@ LineData get_lines_from_standard_input() {
 	    fprintf(stderr, "Error at allocating memory.\n");
 	    /* Deallocate everything we allocated */
 	    __clean_up_memory(current_line, lines, lines_length, lines_len);
-	    return 1;
+	    return NULL;
 	  }
 	  current_line = ptr;
 	}
@@ -175,14 +174,14 @@ LineData get_lines_from_standard_input() {
 	      fprintf(stderr, "Error at allocating memory.\n");
 	      /* Deallocate everything we allocated */
 	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return 1;
+	      return NULL;
 	    }
 	    lines_length = (size_t *) calloc(lines_size, sizeof(size_t));
 	    if (lines_length == NULL) {
 	      fprintf(stderr, "Error at allocating memory.\n");
 	      /* Deallocate everything we allocated */
 	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return 1;
+	      return NULL;
 	    }
 	  } else {
 	    /* This is a reallocation */
@@ -192,7 +191,7 @@ LineData get_lines_from_standard_input() {
 	      fprintf(stderr, "Error: this system cannot handle that many lines.");
 	      /* Deallocate everything we allocated */
 	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return 1;
+	      return NULL;
 	    }
 	    lines_size = tmp;
 	    ptrt = (char **) reallocarray(lines, lines_size, sizeof(char *));
@@ -200,7 +199,7 @@ LineData get_lines_from_standard_input() {
 	      fprintf(stderr, "Error at allocating memory.\n");
 	      /* Deallocate everything we allocated */
 	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return 1;
+	      return NULL;
 	    }
 	    lines = ptrt;
 	    ptrtt = (size_t *) reallocarray(lines_length, lines_size, sizeof(size_t));
@@ -208,7 +207,7 @@ LineData get_lines_from_standard_input() {
 	      fprintf(stderr, "Error at allocating memory.\n");
 	      /* Deallocate everything we allocated */
 	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return 1;
+	      return NULL;
 	    }
 	    lines_length = ptrtt;
 	  }
@@ -255,7 +254,7 @@ LineData get_lines_from_standard_input() {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return 1;
+	  return NULL;
 	}
 	current_line = ptr;
       } else {
@@ -265,7 +264,7 @@ LineData get_lines_from_standard_input() {
 	  fprintf(stderr, "Error: this system cannot handle lines this long.");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return 1;
+	  return NULL;
 	}
 	current_line_size = tmp;
 	ptr = (char *) realloc(current_line, current_line_size);
@@ -273,7 +272,7 @@ LineData get_lines_from_standard_input() {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return 1;
+	  return NULL;
 	}
 	current_line = ptr;
       }
@@ -300,14 +299,14 @@ LineData get_lines_from_standard_input() {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return 1;
+	  return NULL;
 	}
 	lines_length = (size_t *) calloc(lines_size, sizeof(size_t));
 	if (lines_length == NULL) {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return 1;
+	  return NULL;
 	}
       } else {
 	/* This is a reallocation */
@@ -317,7 +316,7 @@ LineData get_lines_from_standard_input() {
 	  fprintf(stderr, "Error: this system cannot handle that many lines.");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return 1;
+	  return NULL;
 	}
 	lines_size = tmp;
 	ptrt = (char **) reallocarray(lines, lines_size, sizeof(char *));
@@ -325,7 +324,7 @@ LineData get_lines_from_standard_input() {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return 1;
+	  return NULL;
 	}
 	lines = ptrt;
 	ptrtt = (size_t *) reallocarray(lines_length, lines_size, sizeof(size_t));
@@ -333,7 +332,7 @@ LineData get_lines_from_standard_input() {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return 1;
+	  return NULL;
 	}
 	lines_length = ptrtt;
       }
@@ -353,7 +352,20 @@ LineData get_lines_from_standard_input() {
   /* Here, we have the array lines of lines. Each line has a length
      that is stored in lines_length.
   */
-  LineData result = {lines, lines_length};
-  return result;
+  
+  // Allocate memory for the LineData object
+  LineData *result = (LineData *)malloc(sizeof(LineData));
+  if (result == NULL) {
+    fprintf(stderr, "Error: Memory allocation failed\n");
+    // Clean up any resources if needed
+    __clean_up_memory(current_line, lines, lines_length, lines_len);
+    return NULL; // Return NULL to indicate failure
+  }
+
+  // Populate the LineData object
+  result->lines = lines;
+  result->lines_length = lines_length;
+  
+  return result; // Return a pointer to the LineData object
 }
 

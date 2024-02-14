@@ -15,13 +15,12 @@
 typedef struct {
     char **lines;
     size_t *lines_length;
-    size_t lines_len;
 } LineData;
 
 
 int my_write(int fd, const void *buf, size_t len);
 void __clean_up_memory(char *current_line, char **lines,
 		       size_t *lines_length, size_t lines_len);
-LineData get_lines_from_standard_input();
+LineData *get_lines_from_standard_input();
 
 #endif
