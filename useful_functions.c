@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 
+
 /* This function writes len bytes from the buffer buf
    to the file descriptor fd.
 
@@ -57,7 +58,7 @@ void __clean_up_memory(char *current_line, char **lines,
   }
 }
 
-int get_lines_from_standard_input() {
+LineData get_lines_from_standard_input() {
   char buffer[BUFFER_SIZE];
   ssize_t read_res;
   size_t amount_new_chars, i, k;
@@ -352,5 +353,7 @@ int get_lines_from_standard_input() {
   /* Here, we have the array lines of lines. Each line has a length
      that is stored in lines_length.
   */
+  LineData result = {lines, lines_length};
+  return result;
 }
 
