@@ -1,4 +1,3 @@
-/* Nothing here yet*/
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -334,7 +333,7 @@ int main(int argc, char **argv) {
      We need to write all lines in backward order to standard output.
 
   */
-    for (k = 0; k < 10; k++) {
+    for (k = 0; k < num_lines; k++) {
     if (my_write(1, lines[k], lines_length[k]) < 0) {
       fprintf(stderr, "Error while reading: %s\n", strerror(errno));
       /* Deallocate everything we allocated */
