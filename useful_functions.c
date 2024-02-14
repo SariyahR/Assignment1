@@ -57,7 +57,7 @@ void __clean_up_memory(char *current_line, char **lines,
   }
 }
 
-void get_lines_from_standar_input() {
+int get_lines_from_standard_input() {
   char buffer[BUFFER_SIZE];
   ssize_t read_res;
   size_t amount_new_chars, i, k;
@@ -83,31 +83,6 @@ void get_lines_from_standar_input() {
   current_line_len = (size_t) 0;
 
 
-  /* Default number of lines */
-  int num_lines = 10;
-
-  /* Check if the -n option is provided*/
-  if (argc == 3 && strcmp(argv[1], "-n") == 0) {
-    /* argv[0]: The program name.
-       argv[1]: The -n option.
-       argv[2]: The number of lines argument.
-    */
-    num_lines = atoi(argv[2]);
-    if (num_lines <= 0) {
-      fprintf(stderr, "Error: Invalid number of lines\n");
-      return 1;
-    }
-  } else if (argc != 1) {
-    /* Invalid usage, print error message */
-    fprintf(stderr, "Usage: %s [-n <num>]\n", argv[0]);
-    return 1;
-  }
-
-  /*Process input based on the number of lines specified
-    For now, let's just print out the number of lines */
-  printf("Number of lines: %d\n", num_lines);
-
-  
   for (;;) {
     /* Read the next chunk of data from standard input */
     read_res = read(0, buffer, sizeof(buffer));
