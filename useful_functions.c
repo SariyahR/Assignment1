@@ -61,7 +61,7 @@ void __clean_up_memory(char *current_line, char **lines,
 LineData *get_lines_from_standard_input() {
   char buffer[BUFFER_SIZE];
   ssize_t read_res;
-  size_t amount_new_chars, i, k;
+  size_t amount_new_chars, i;
   char c;
   char *current_line;
   size_t current_line_size;
