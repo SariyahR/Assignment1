@@ -58,24 +58,20 @@ int main(int argc, char **argv) {
 	  }
 	  free(lines);
 	  free(lines_length);
-	  free(lineDataPtr->lines);
-	  free(lineDataPtr->lines_length);
-	  free(lineDataPtr);
 	}
 	return 1;
       }
     }
+    free(lineDataPtr);
     
   } else {
     // Handle the case where get_lines_from_standard_input() returned NULL
     fprintf(stderr, "Error: Failed to read lines from standard input\n");
+    /* Deallocate everything we allocated */
+    free(lineDataPtr->lines);
+    free(lineDataPtr->lines_length);
+    free(lineDataPtr); 
   }
 
-  /* Deallocate everything we allocated */
-  free(lineDataPtr->lines);
-  free(lineDataPtr->lines_length);
-  free(lineDataPtr);
- 
-  
   return 0;
 }
