@@ -12,24 +12,56 @@
 int main(int argc, char **argv) {
     size_t i;
     size_t k;
-    /* Default number of lines */
-    int num_lines = 10;
+    int num_lines;
 
-    /* Check if the -n option is provided*/
-    if (argc == 3 && strcmp(argv[1], "-n") == 0) {
-        /* argv[0]: The program name.
-           argv[1]: The -n option.
-           argv[2]: The number of lines argument.
-        */
-        num_lines = atoi(argv[2]);
-        if (num_lines <= 0) {
-            fprintf(stderr, "Error: Invalid number of lines\n");
-            return 1;
-        }
-    } else if (argc != 1) {
-        /* Invalid usage, print error message */
-        fprintf(stderr, "Usage: %s [-n <num>]\n", argv[0]);
-        return 1;
+    /* The next conditional statements make sure to
+       handle all well-formed calls to head */
+
+    /* This means filename and number of lines are specified */
+    if (argc == 4) {
+      if (strcmp(argv[1], "-n") == 0 ) {
+	
+      } else if (strcmp(argv[2], "-n") == 0) {
+	
+      } else {
+	
+      }
+      
+    } else if (argc == 3) {
+      /* argv[0]: The program name
+	 argv[1]: The -n option
+	 argv[2]: The number of lines argument
+      */
+      converted_num = atoi(argv[2]);
+
+      /* If -n option is incorrectly given*/
+      // If not number then error message and exit
+      
+      /* If negative number of lines is entered, do nothing */
+      if ( converted_num < 0 ) {
+	num_lines = 0;
+	printf("Doing nothing because negative");
+      } else {
+	num_lines = converted_num;
+      }
+    } else if (argc == 2) {
+      /* argv[0]: The program name
+	 argv[1]: The file name
+      */
+    } else if (argc == 1) {
+      /* argv[0]: The program name
+	 Default number of lines is 10
+      */
+      num_lines = 10;
+      
+    } else {
+      printf("This is not a well-formed call to head.\n");
+      printf("Here are some examples of valid ways you can call head:\n");
+      printf("./head -n 42 nanpa\n");
+      printf("./head nanpa -n 42\n");
+      printf("./head -n 42\n");
+      printf("./head nanpa\n");
+      printf("./head\n");
     }
 
     /*Process input based on the number of lines specified
