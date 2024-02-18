@@ -12,19 +12,13 @@
 #define FIRST_ALLOCATION_SIZE            (((size_t) 16))
 #define FIRST_ALLOCATION_LINE_ARRAY_SIZE (((size_t) 16))
 
-typedef struct {
-  char **lines;
-  size_t *lines_length;
-  size_t lines_len;
-} LineData;
-
 
 int my_write(int fd, const void *buf, size_t len);
 
 void __clean_up_memory(char *current_line, char **lines,
 		       size_t *lines_length, size_t lines_len);
 
-LineData *get_lines_from_standard_input();
+int get_lines_from_standard_input(char ***lines, size_t **lines_lengths, size_t *lines_total);
 
 void print_error_message_badly_formed_call(const char *head_or_tail);
 

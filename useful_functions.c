@@ -59,8 +59,13 @@ void __clean_up_memory(char *current_line, char **lines,
   }
 }
 
-/* We need a comment here*/
-LineData *get_lines_from_standard_input() {
+
+/* This function reads the lines from standard input
+   and then stores the lines in an array, as well as
+   an array containing the lengths of each line.
+*/
+int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
+				  size_t *lines_total_ptr) {
   char buffer[BUFFER_SIZE];
   ssize_t read_res;
   size_t amount_new_chars, i;
@@ -70,17 +75,17 @@ LineData *get_lines_from_standard_input() {
   size_t current_line_len;
   char *ptr;
   size_t tmp;
-  char **lines;
-  size_t *lines_length;
   size_t lines_size;
-  size_t lines_len;
   char **ptrt;
   size_t *ptrtt;
+  char **lines;
+  size_t *lines_lengths;
+  size_t lines_total;
 
   lines = NULL;
-  lines_length = NULL;
+  lines_lengths = NULL;
   lines_size = (size_t) 0;
-  lines_len = (size_t) 0;
+  lines_total = (size_t) 0;
   current_line = NULL;
   current_line_size = (size_t) 0;
   current_line_len = (size_t) 0;
@@ -94,8 +99,8 @@ LineData *get_lines_from_standard_input() {
     if (read_res < ((ssize_t) 0)) {
       fprintf(stderr, "Error while reading: %s\n", strerror(errno));
       /* Deallocate everything we allocated */
-      __clean_up_memory(current_line, lines, lines_length, lines_len);
-      return NULL;
+      __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+      return 1;
     }
 
     /* If we hit EOF, break out of the read loop */
@@ -127,8 +132,8 @@ LineData *get_lines_from_standard_input() {
 	  if (ptr == NULL) {
 	    fprintf(stderr, "Error at allocating memory.\n");
 	    /* Deallocate everything we allocated */
-	    __clean_up_memory(current_line, lines, lines_length, lines_len);
-	    return NULL;
+	    __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	    return 1;
 	  }
 	  current_line = ptr;
 	} else {
@@ -137,16 +142,16 @@ LineData *get_lines_from_standard_input() {
 	    /* Overflow on our multiplication by 2 */
 	    fprintf(stderr, "Error: this system cannot handle lines this long.");
 	    /* Deallocate everything we allocated */
-	    __clean_up_memory(current_line, lines, lines_length, lines_len);
-	    return NULL;
+	    __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	    return 1;
 	  }
 	  current_line_size = tmp;
 	  ptr = (char *) realloc(current_line, current_line_size);
 	  if (ptr == NULL) {
 	    fprintf(stderr, "Error at allocating memory.\n");
 	    /* Deallocate everything we allocated */
-	    __clean_up_memory(current_line, lines, lines_length, lines_len);
-	    return NULL;
+	    __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	    return 1;
 	  }
 	  current_line = ptr;
 	}
@@ -167,7 +172,7 @@ LineData *get_lines_from_standard_input() {
 	 an array of all lines.
       */
       if (c == '\n') {
-	if ((lines_len + ((size_t) 1)) > lines_size) {
+	if ((lines_total + ((size_t) 1)) > lines_size) {
 	  /* We need to allocate or reallocate memory */
 	  if (lines == NULL) {
 	    /* This is the first allocation */
@@ -176,15 +181,15 @@ LineData *get_lines_from_standard_input() {
 	    if (lines == NULL) {
 	      fprintf(stderr, "Error at allocating memory.\n");
 	      /* Deallocate everything we allocated */
-	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return NULL;
+	      __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	      return 1;
 	    }
-	    lines_length = (size_t *) calloc(lines_size, sizeof(size_t));
-	    if (lines_length == NULL) {
+	    lines_lengths = (size_t *) calloc(lines_size, sizeof(size_t));
+	    if (lines_lengths == NULL) {
 	      fprintf(stderr, "Error at allocating memory.\n");
 	      /* Deallocate everything we allocated */
-	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return NULL;
+	      __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	      return 1;
 	    }
 	  } else {
 	    /* This is a reallocation */
@@ -193,35 +198,35 @@ LineData *get_lines_from_standard_input() {
 	      /* Overflow on our multiplication by 2 */
 	      fprintf(stderr, "Error: this system cannot handle that many lines.");
 	      /* Deallocate everything we allocated */
-	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return NULL;
+	      __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	      return 1;
 	    }
 	    lines_size = tmp;
 	    ptrt = (char **) reallocarray(lines, lines_size, sizeof(char *));
 	    if (ptrt == NULL) {
 	      fprintf(stderr, "Error at allocating memory.\n");
 	      /* Deallocate everything we allocated */
-	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return NULL;
+	      __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	      return 1;
 	    }
 	    lines = ptrt;
-	    ptrtt = (size_t *) reallocarray(lines_length, lines_size, sizeof(size_t));
+	    ptrtt = (size_t *) reallocarray(lines_lengths, lines_size, sizeof(size_t));
 	    if (ptrtt == NULL) {
 	      fprintf(stderr, "Error at allocating memory.\n");
 	      /* Deallocate everything we allocated */
-	      __clean_up_memory(current_line, lines, lines_length, lines_len);
-	      return NULL;
+	      __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	      return 1;
 	    }
-	    lines_length = ptrtt;
+	    lines_lengths = ptrtt;
 	  }
 	}
 	
 	/* Here, we have an array of lines allocated, into 
 	   which we can put our current line.
 	*/
-	lines[lines_len] = current_line;
-	lines_length[lines_len] = current_line_len;
-	lines_len++;
+	lines[lines_total] = current_line;
+	lines_lengths[lines_total] = current_line_len;
+	lines_total++;
 	current_line = NULL;
 	current_line_len = (size_t) 0;
 	current_line_size = (size_t) 0;
@@ -256,8 +261,8 @@ LineData *get_lines_from_standard_input() {
 	if (ptr == NULL) {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
-	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return NULL;
+	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	  return 1;
 	}
 	current_line = ptr;
       } else {
@@ -266,16 +271,16 @@ LineData *get_lines_from_standard_input() {
 	  /* Overflow on our multiplication by 2 */
 	  fprintf(stderr, "Error: this system cannot handle lines this long.");
 	  /* Deallocate everything we allocated */
-	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return NULL;
+	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	  return 1;
 	}
 	current_line_size = tmp;
 	ptr = (char *) realloc(current_line, current_line_size);
 	if (ptr == NULL) {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
-	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return NULL;
+	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	  return 1;
 	}
 	current_line = ptr;
       }
@@ -292,7 +297,7 @@ LineData *get_lines_from_standard_input() {
     current_line_len++;
 
     /* Put the last line into the array of lines */
-    if ((lines_len + ((size_t) 1)) > lines_size) {
+    if ((lines_total + ((size_t) 1)) > lines_size) {
       /* We need to allocate or reallocate memory */
       if (lines == NULL) {
 	/* This is the first allocation */
@@ -301,15 +306,15 @@ LineData *get_lines_from_standard_input() {
 	if (lines == NULL) {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
-	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return NULL;
+	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	  return 1;
 	}
-	lines_length = (size_t *) calloc(lines_size, sizeof(size_t));
-	if (lines_length == NULL) {
+	lines_lengths = (size_t *) calloc(lines_size, sizeof(size_t));
+	if (lines_lengths == NULL) {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
-	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return NULL;
+	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	  return 1;
 	}
       } else {
 	/* This is a reallocation */
@@ -318,35 +323,35 @@ LineData *get_lines_from_standard_input() {
 	  /* Overflow on our multiplication by 2 */
 	  fprintf(stderr, "Error: this system cannot handle that many lines.");
 	  /* Deallocate everything we allocated */
-	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return NULL;
+	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	  return 1;
 	}
 	lines_size = tmp;
 	ptrt = (char **) reallocarray(lines, lines_size, sizeof(char *));
 	if (ptrt == NULL) {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
-	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return NULL;
+	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	  return 1;
 	}
 	lines = ptrt;
-	ptrtt = (size_t *) reallocarray(lines_length, lines_size, sizeof(size_t));
+	ptrtt = (size_t *) reallocarray(lines_lengths, lines_size, sizeof(size_t));
 	if (ptrtt == NULL) {
 	  fprintf(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
-	  __clean_up_memory(current_line, lines, lines_length, lines_len);
-	  return NULL;
+	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
+	  return 1;
 	}
-	lines_length = ptrtt;
+	lines_lengths = ptrtt;
       }
     }
 	
     /* Here, we have an array of lines allocated, into 
        which we can put our current line.
     */
-    lines[lines_len] = current_line;
-    lines_length[lines_len] = current_line_len;
-    lines_len++;
+    lines[lines_total] = current_line;
+    lines_lengths[lines_total] = current_line_len;
+    lines_total++;
     current_line = NULL;
     current_line_len = (size_t) 0;
     current_line_size = (size_t) 0;
@@ -355,25 +360,15 @@ LineData *get_lines_from_standard_input() {
   /* Here, we have the array lines of lines. Each line has a length
      that is stored in lines_length.
   */
-  
-  // Allocate memory for the LineData object
-  LineData *result = (LineData *)malloc(sizeof(LineData));
-  if (result == NULL) {
-    fprintf(stderr, "Error: Memory allocation failed\n");
-    // Clean up any resources if needed
-    __clean_up_memory(current_line, lines, lines_length, lines_len);
-    return NULL; // Return NULL to indicate failure
-  }
-
-  // Populate the LineData object
-  result->lines = lines;
-  result->lines_length = lines_length;
-  result->lines_len = lines_len;
-  
   if (current_line != NULL) free(current_line);
+
+  *lines_ptr = lines;
+  *lines_lengths_ptr = lines_lengths;
+  *lines_total_ptr = lines_total;
   
-  return result; // Return a pointer to the LineData object
+  return 0;
 }
+
 
 /* This function prints a message to tell the user how
    to call head or tail correctly after they have called it
