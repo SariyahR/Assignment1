@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 
 /* This function writes len bytes from the buffer buf
@@ -57,7 +58,7 @@ void __clean_up_memory(char *current_line, char **lines,
   }
 }
 
-
+/* We need a comment here*/
 LineData *get_lines_from_standard_input() {
   char buffer[BUFFER_SIZE];
   ssize_t read_res;
@@ -373,3 +374,58 @@ LineData *get_lines_from_standard_input() {
   return result; // Return a pointer to the LineData object
 }
 
+/* This function prints a message to tell the user how
+   to call head or tail correctly after they have called it
+   incorrrectly.
+*/
+void print_error_message_badly_formed_call(const char *head_or_tail) {
+  printf("\nThis is not a well-formed call to %s.\n", head_or_tail);
+  printf("Here are some examples of valid calls:\n");
+  printf("./%s -n 42 nanpa\n", head_or_tail);
+  printf("./%s nanpa -n 42\n", head_or_tail);
+  printf("./%s -n 42\n", head_or_tail);
+  printf("./%s nanpa\n", head_or_tail);
+  printf("./%s\n", head_or_tail);
+}
+
+
+/* This function converts a string to a number
+*/
+
+ssize_t convert_from_string_to_number(const char *str, char **endptr) {
+  ssize_t result = 0;
+  int sign = 1;
+
+  /* Skip leading whitespaces */
+  while (*str == ' ') {
+    str++;
+  }
+
+  /* Check for the sign */
+  if (*str == '-') {
+    sign = -1;
+    str++;
+  }
+
+  /* Convert digits to numbers */
+  while (*str >= '0' && *str <= '9') {
+    /* Check for overflow */
+    if (result > (INT_MAX - (*str - '0')) / 10) {
+      /* Overflow detected */
+      if (endptr != NULL) {
+	*endptr = (char *)str;
+      }
+      return sign == 1 ? INT_MAX : INT_MIN;
+    }
+    result = result * 10 + (*str - '0');
+    str++;
+  }
+  /* Set endptr to point to the character after the last
+     digit found
+  */
+  if (endptr != NULL) {
+    *endptr = (char *)str;
+  }
+
+  return result * sign;
+}

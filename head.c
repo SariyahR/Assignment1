@@ -13,6 +13,7 @@ int main(int argc, char **argv) {
     size_t i;
     size_t k;
     int num_lines;
+    int converted_num;
 
     /* The next conditional statements make sure to
        handle all well-formed calls to head */
@@ -20,11 +21,23 @@ int main(int argc, char **argv) {
     /* This means filename and number of lines are specified */
     if (argc == 4) {
       if (strcmp(argv[1], "-n") == 0 ) {
+	/* argv[0]: The program name
+	   argv[1]: The -n option
+	   argv[2]: The number of lines argument
+	   argv[3]: The file name
+	*/
 	
       } else if (strcmp(argv[2], "-n") == 0) {
+	/* argv[0]: The program name
+	   argv[1]: The file name
+	   argv[2]: The -n option
+	   argv[3]: The file name
+	*/
 	
       } else {
-	
+	/* Has four arguments, but not in the correct format*/
+	print_error_message_badly_formed_call("head");
+	return 1;
       }
       
     } else if (argc == 3) {
@@ -35,14 +48,17 @@ int main(int argc, char **argv) {
       converted_num = atoi(argv[2]);
 
       /* If -n option is incorrectly given*/
+      
       // If not number then error message and exit
       
       /* If negative number of lines is entered, do nothing */
       if ( converted_num < 0 ) {
-	num_lines = 0;
-	printf("Doing nothing because negative");
+	printf("Doing nothing because negative.\n");
+	return 0;
+	
       } else {
 	num_lines = converted_num;
+	
       }
     } else if (argc == 2) {
       /* argv[0]: The program name
@@ -55,13 +71,8 @@ int main(int argc, char **argv) {
       num_lines = 10;
       
     } else {
-      printf("This is not a well-formed call to head.\n");
-      printf("Here are some examples of valid ways you can call head:\n");
-      printf("./head -n 42 nanpa\n");
-      printf("./head nanpa -n 42\n");
-      printf("./head -n 42\n");
-      printf("./head nanpa\n");
-      printf("./head\n");
+      print_error_message_badly_formed_call("head");
+      return 1;
     }
 
     /*Process input based on the number of lines specified
@@ -106,6 +117,7 @@ int main(int argc, char **argv) {
     } else {
         // Handle the case where get_lines_from_standard_input() returned NULL
         fprintf(stderr, "Error: Failed to read lines from standard input\n");
+	return 1;
     }
 
     return 0;
