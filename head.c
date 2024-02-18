@@ -43,14 +43,15 @@ int main(int argc, char **argv) {
         // Access the lines and lines_length arrays
         char **lines = lineDataPtr->lines;
         size_t *lines_length = lineDataPtr->lines_length;
-
+	size_t lines_total = lineDataPtr->lines_len;
+	
         /* We need to write all lines in backward order to standard output.*/
         for (k = 0; k < num_lines; k++) {
             if (my_write(1, lines[k], lines_length[k]) < 0) {
                 fprintf(stderr, "Error while reading: %s\n", strerror(errno));
 
                 /* Deallocate everything we allocated */
-                for (i = 0; i < lineDataPtr->lines_len; i++) {
+                for (i = 0; i < lines_total; i++) {
                     free(lines[i]);
                 }
                 free(lines);
