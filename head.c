@@ -3,6 +3,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "useful_functions.h"
 
 #define BUFFER_SIZE                      (((size_t) 4096))
@@ -14,6 +15,7 @@ int main(int argc, char **argv) {
     size_t k;
     int num_lines;
     int converted_num;
+    char *endptr;
 
     /* The next conditional statements make sure to
        handle all well-formed calls to head */
@@ -45,21 +47,34 @@ int main(int argc, char **argv) {
 	 argv[1]: The -n option
 	 argv[2]: The number of lines argument
       */
-      converted_num = atoi(argv[2]);
+      converted_num = convert_from_string_to_number(argv[2], &endptr);
 
-      /* If -n option is incorrectly given*/
-      
-      // If not number then error message and exit
-      
-      /* If negative number of lines is entered, do nothing */
-      if ( converted_num < 0 ) {
+      if (endptr == argv[2]) {
+	/* No valid digits found in the string */
+	printf("No digits were found\n");
+	return 1;
+	
+      } else if (*endptr != '\0') {
+	/* A valid number mixed with invalid characters */
+        printf("Invalid characters after number: %s\n", endptr);
+	return 1;
+	
+      } else if (converted_num < 0) {
+	/* If negative number of lines is entered do nothing*/
 	printf("Doing nothing because negative.\n");
 	return 0;
 	
-      } else {
+      } else if (converted_num >= UINT64_MAX) {
 	num_lines = converted_num;
-	
+	printf("The number you entered is too large.\n");
+	return 1;
+      } else {
+	/* Everything went well, number was converted
+	 correctly and is within range
+	*/
+	num_lines = converted_num;
       }
+      
     } else if (argc == 2) {
       /* argv[0]: The program name
 	 argv[1]: The file name

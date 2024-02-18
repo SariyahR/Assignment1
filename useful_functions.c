@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <stdint.h>
 
 
 /* This function writes len bytes from the buffer buf
@@ -389,9 +390,7 @@ void print_error_message_badly_formed_call(const char *head_or_tail) {
 }
 
 
-/* This function converts a string to a number
-*/
-
+/* This function converts a string to a number */
 ssize_t convert_from_string_to_number(const char *str, char **endptr) {
   ssize_t result = 0;
   int sign = 1;
@@ -410,12 +409,12 @@ ssize_t convert_from_string_to_number(const char *str, char **endptr) {
   /* Convert digits to numbers */
   while (*str >= '0' && *str <= '9') {
     /* Check for overflow */
-    if (result > (INT_MAX - (*str - '0')) / 10) {
+    if (result > (SIZE_MAX - (*str - '0')) / 10) {
       /* Overflow detected */
       if (endptr != NULL) {
 	*endptr = (char *)str;
       }
-      return sign == 1 ? INT_MAX : INT_MIN;
+      return sign == 1 ? SIZE_MAX : 0; 
     }
     result = result * 10 + (*str - '0');
     str++;
