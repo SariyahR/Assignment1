@@ -16,6 +16,15 @@ int main(int argc, char **argv) {
     int converted_num;
     char *endptr;
 
+    char **lines;
+    size_t *lines_lengths;
+    size_t lines_total;
+
+    lines = NULL;
+    lines_lengths = NULL;
+    lines_total = (size_t) 0;
+    num_lines = 10;
+
     /* The next conditional statements make sure to
        handle all well-formed calls to head */
 
@@ -71,7 +80,7 @@ int main(int argc, char **argv) {
 	     correctly and is within range
 	  */
    	  num_lines = converted_num;
-	  print_certain_number_of_lines(num_lines, true);
+	  get_lines_from_standard_input(&lines, &lines_lengths, &lines_total);
         }
         break;
       case 2:
@@ -79,6 +88,8 @@ int main(int argc, char **argv) {
 	    /* argv[0]: The program name
 	       argv[1]: The file name
 	    */
+	   get_lines_from_file(argv[1], &lines, &lines_lengths, &lines_total);
+	   
 	 } else {
 	   print_error_message_badly_formed_call("head");
 	   return 1;
@@ -88,7 +99,7 @@ int main(int argc, char **argv) {
         /* argv[0]: The program name
 	   Default number of lines is 10
         */
-        print_certain_number_of_lines(10, true);
+	get_lines_from_standard_input(&lines, &lines_lengths, &lines_total);
 	break;
 	
       default:
@@ -96,6 +107,8 @@ int main(int argc, char **argv) {
         return 1;
         break;
     }
+    
+    print_certain_number_of_lines(num_lines, true, lines, lines_lengths, lines_total);
 }
 
  
