@@ -6,6 +6,13 @@
 #include <limits.h>
 #include <stdint.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+
+#define CONTENT_DEFAULT_SIZE (((size_t) 16))
 
 /* This function writes len bytes from the buffer buf
    to the file descriptor fd.
@@ -57,6 +64,179 @@ void __clean_up_memory(char *current_line, char **lines,
     free(lines);
     free(lines_length);
   }
+}
+
+
+
+/* This function reads a file into memory */
+int read_from_file(char *filename, char **content_ptr,
+			size_t *content_len_ptr) {
+  int fd;
+  char buffer[4096];
+  char *content;
+  size_t content_len;
+  size_t content_size;
+  ssize_t read_res;
+  size_t bytes_read, i;
+  char c;
+  size_t t;
+  void *ptr;
+  
+  /* Open the file for reading */
+  fd = open(filename, O_RDONLY);
+  if (fd < 0) {
+    fprintf(stderr, "Error at opening \"%s\": %s\n", filename, strerror(errno));
+    return 1;
+  }
+  
+  /* Let's read the whole file into memory */
+  content = NULL;
+  content_len = (size_t) 0;
+  content_size = (size_t) 0;
+  
+  for (;;) {
+    read_res = read(fd, buffer, sizeof(buffer));
+    if (read_res < ((ssize_t) 0)) {
+      fprintf(stderr, "Error at reading: %s\n", strerror(errno));
+      if (content != NULL) free(content);
+      if (close(fd) < 0) {
+	fprintf(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
+      }
+      return 1;
+    }
+    if (read_res == ((ssize_t) 0))
+      break;
+    bytes_read = (size_t) read_res;
+    for (i=((size_t) 0); i<bytes_read; i++) {
+      c = buffer[i];
+      if ((content == NULL) ||
+	  ((content_len + ((size_t) 1)) > content_size)) {
+	if (content == NULL) {
+	  t = CONTENT_DEFAULT_SIZE;
+	  if ((content_len + ((size_t) 1)) > t) {
+	    t = content_len + ((size_t) 1);
+	  }
+	  ptr = malloc(t);
+	  if (ptr == NULL) {
+	    fprintf(stderr, "Error at allocating memory\n");
+	    if (content != NULL) free(content);
+	    if (close(fd) < 0) {
+	      fprintf(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
+	    }
+	    return 1;
+	  }
+	  content = (char *) ptr;
+	  content_size = t;
+	} else {
+	  t = content_size + content_size;
+	  if (t < content_size) {
+	    fprintf(stderr, "Error at manipulating that much of data\n");
+	    if (content != NULL) free(content);
+	    if (close(fd) < 0) {
+	      fprintf(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
+	    }
+	    return 1;
+	  } 
+	  ptr = realloc(content, t);
+	  if (ptr == NULL) {
+	    fprintf(stderr, "Error at allocating memory\n");
+	    if (content != NULL) free(content);
+	    if (close(fd) < 0) {
+	      fprintf(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
+	    }
+	    return 1;
+	  }
+	  content = (char *) ptr;
+	  content_size = t;
+	}
+      }
+      content[content_len] = c;
+      content_len++;
+    }
+  }
+  *content_ptr = content;
+  *content_len_ptr = content_len;
+  return 0;
+}
+
+
+int get_lines_from_file(char *filename, char ***lines_ptr, size_t **lines_lengths_ptr,
+                        size_t *lines_total_ptr) {
+    char **lines = NULL;
+    size_t *lines_lengths = NULL;
+    size_t lines_total = (size_t) 0;
+    char *content = NULL;
+    size_t content_len = 0; // Change to 0
+
+    // Read content from file
+    if (read_from_file(filename, &content, &content_len) != 0) {
+        return -1; // Indicate failure
+    }
+
+    // Iterate through the content array
+    size_t start = 0;
+    for (size_t i = 0; i < content_len; ++i) {
+        // Check for line break or end of content
+        if (content[i] == '\n' || i == content_len - 1) {
+            // Allocate memory for the line
+            char **new_lines = realloc(lines, (lines_total + 1) * sizeof(char *));
+            if (new_lines == NULL) {
+                // Handle allocation failure
+                free(content);
+                free(lines); // Free previously allocated memory
+                free(lines_lengths); // Free previously allocated memory
+                return -1; // Indicate failure
+            }
+            lines = new_lines;
+
+            size_t *new_lengths = realloc(lines_lengths, (lines_total + 1) * sizeof(size_t));
+            if (new_lengths == NULL) {
+                // Handle allocation failure
+                free(content);
+                free(lines); // Free previously allocated memory
+                free(lines_lengths); // Free previously allocated memory
+                return -1; // Indicate failure
+            }
+            lines_lengths = new_lengths;
+
+            // Calculate length of the line
+            size_t line_length = i - start + 1;
+
+            // Allocate memory for the line content
+            lines[lines_total] = malloc(line_length);
+            if (lines[lines_total] == NULL) {
+                // Handle allocation failure
+                free(content);
+                for (size_t j = 0; j < lines_total; ++j) {
+                    free(lines[j]); // Free previously allocated memory
+                }
+                free(lines); // Free previously allocated memory
+                free(lines_lengths); // Free previously allocated memory
+                return -1; // Indicate failure
+            }
+            memcpy(lines[lines_total], &content[start], line_length - 1);
+            lines[lines_total][line_length - 1] = '\0'; // Null-terminate the string
+
+            // Store the line length
+            lines_lengths[lines_total] = line_length;
+
+            // Update start index for next line
+            start = i + 1;
+
+            // Increment total lines counter
+            lines_total++;
+        }
+    }
+
+    // Free content as it's no longer needed
+    free(content);
+
+    // Now lines, lines_lengths, and lines_total contain the parsed lines
+    *lines_ptr = lines;
+    *lines_lengths_ptr = lines_lengths;
+    *lines_total_ptr = lines_total;
+
+    return 0;
 }
 
 
@@ -426,21 +606,14 @@ ssize_t convert_from_string_to_number(const char *str, char **endptr) {
 
 
 int print_certain_number_of_lines(size_t num_lines_to_print,
-				  bool starts_from_beginning) {
+				  bool starts_from_beginning, char **lines,
+				  size_t *lines_lengths, size_t lines_total) {
   
    /*Process input based on the number of lines specified
       For now, let's just print out the number of lines */
     printf("Number of lines: %zu\n", num_lines_to_print);
 
     size_t i, k, start, stop;
-
-    char **lines = NULL;
-    size_t *lines_lengths = NULL;
-    size_t lines_total = 0;
-
-    /* Get the line data struct with the info */
-    get_lines_from_standard_input(&lines, &lines_lengths, &lines_total);
-
 
     if (starts_from_beginning) {
       start = 0;
@@ -472,5 +645,4 @@ int print_certain_number_of_lines(size_t num_lines_to_print,
    free(lines);
    free(lines_lengths);
    return 0;
-  
 }
