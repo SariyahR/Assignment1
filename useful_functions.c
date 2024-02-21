@@ -423,3 +423,54 @@ ssize_t convert_from_string_to_number(const char *str, char **endptr) {
 
   return result * sign;
 }
+
+
+int print_certain_number_of_lines(size_t num_lines_to_print,
+				  bool starts_from_beginning) {
+  
+   /*Process input based on the number of lines specified
+      For now, let's just print out the number of lines */
+    printf("Number of lines: %zu\n", num_lines_to_print);
+
+    size_t i, k, start, stop;
+
+    char **lines = NULL;
+    size_t *lines_lengths = NULL;
+    size_t lines_total = 0;
+
+    /* Get the line data struct with the info */
+    get_lines_from_standard_input(&lines, &lines_lengths, &lines_total);
+
+
+    if (starts_from_beginning) {
+      start = 0;
+      stop = num_lines_to_print;
+    } else {
+      start = lines_total - num_lines_to_print;
+      stop =lines_total;
+    }
+    
+    /* We need to write the first num_lines lines to standard out.*/
+    for (k = start; k < stop; k++) {
+        if (my_write(1, lines[k], lines_lengths[k]) < 0) {
+	fprintf(stderr, "Error while reading: %s\n", strerror(errno));
+
+	/* Deallocate everything we allocated */
+	for (i = 0; i < lines_total; i++) {
+	  free(lines[i]);
+	}
+	free(lines);
+	free(lines_lengths);
+	return 1;
+      }
+    }
+
+    // Free memory allocated for lines and lines_length
+   for (i = 0; i < lines_total; i++) {
+     free(lines[i]);
+   }
+   free(lines);
+   free(lines_lengths);
+   return 0;
+  
+}

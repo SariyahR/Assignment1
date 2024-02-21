@@ -7,6 +7,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define BUFFER_SIZE                      (((size_t) 4096))
 #define FIRST_ALLOCATION_SIZE            (((size_t) 16))
@@ -23,5 +24,7 @@ int get_lines_from_standard_input(char ***lines, size_t **lines_lengths, size_t 
 void print_error_message_badly_formed_call(const char *head_or_tail);
 
 ssize_t convert_from_string_to_number(const char *str, char **endptr);
+
+int print_certain_number_of_lines(size_t num_lines_to_print, bool starts_from_beginning);
 
 #endif
