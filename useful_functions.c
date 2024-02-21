@@ -88,7 +88,7 @@ int read_from_file(char *filename, char **content_ptr,
   /* Open the file for reading */
   fd = open(filename, O_RDONLY);
   if (fd < 0) {
-    fprintf(stderr, "Error at opening \"%s\": %s\n", filename, strerror(errno));
+    my_write(stderr, "Error at opening \"%s\": %s\n", filename, strerror(errno));
     return 1;
   }
   
@@ -100,10 +100,10 @@ int read_from_file(char *filename, char **content_ptr,
   for (;;) {
     read_res = read(fd, buffer, sizeof(buffer));
     if (read_res < ((ssize_t) 0)) {
-      fprintf(stderr, "Error at reading: %s\n", strerror(errno));
+      my_write(stderr, "Error at reading: %s\n", strerror(errno));
       if (content != NULL) free(content);
       if (close(fd) < 0) {
-	fprintf(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
+	      my_write(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
       }
       return 1;
     }
@@ -121,10 +121,10 @@ int read_from_file(char *filename, char **content_ptr,
 	  }
 	  ptr = malloc(t);
 	  if (ptr == NULL) {
-	    fprintf(stderr, "Error at allocating memory\n");
+	    my_write(stderr, "Error at allocating memory\n");
 	    if (content != NULL) free(content);
 	    if (close(fd) < 0) {
-	      fprintf(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
+	      my_write(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
 	    }
 	    return 1;
 	  }
@@ -133,19 +133,19 @@ int read_from_file(char *filename, char **content_ptr,
 	} else {
 	  t = content_size + content_size;
 	  if (t < content_size) {
-	    fprintf(stderr, "Error at manipulating that much of data\n");
+	    my_write(stderr, "Error at manipulating that much of data\n");
 	    if (content != NULL) free(content);
 	    if (close(fd) < 0) {
-	      fprintf(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
+	      my_write(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
 	    }
 	    return 1;
 	  } 
 	  ptr = realloc(content, t);
 	  if (ptr == NULL) {
-	    fprintf(stderr, "Error at allocating memory\n");
+	    my_write(stderr, "Error at allocating memory\n");
 	    if (content != NULL) free(content);
 	    if (close(fd) < 0) {
-	      fprintf(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
+	      my_write(stderr, "Error at closing \"%s\": %s\n", filename, strerror(errno));
 	    }
 	    return 1;
 	  }
@@ -280,7 +280,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 
     /* Handle errors */
     if (read_res < ((ssize_t) 0)) {
-      fprintf(stderr, "Error while reading: %s\n", strerror(errno));
+      my_write(stderr, "Error while reading: %s\n", strerror(errno));
       /* Deallocate everything we allocated */
       __clean_up_memory(current_line, lines, lines_lengths, lines_total);
       return 1;
@@ -313,7 +313,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	  current_line_size = FIRST_ALLOCATION_SIZE;
 	  ptr = (char *) malloc(current_line_size);
 	  if (ptr == NULL) {
-	    fprintf(stderr, "Error at allocating memory.\n");
+	    my_write(stderr, "Error at allocating memory.\n");
 	    /* Deallocate everything we allocated */
 	    __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	    return 1;
@@ -323,7 +323,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	  tmp = current_line_size + current_line_size;
 	  if (tmp < current_line_size) {
 	    /* Overflow on our multiplication by 2 */
-	    fprintf(stderr, "Error: this system cannot handle lines this long.");
+	    my_write(stderr, "Error: this system cannot handle lines this long.");
 	    /* Deallocate everything we allocated */
 	    __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	    return 1;
@@ -331,7 +331,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	  current_line_size = tmp;
 	  ptr = (char *) realloc(current_line, current_line_size);
 	  if (ptr == NULL) {
-	    fprintf(stderr, "Error at allocating memory.\n");
+	    my_write(stderr, "Error at allocating memory.\n");
 	    /* Deallocate everything we allocated */
 	    __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	    return 1;
@@ -362,7 +362,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	    lines_size = FIRST_ALLOCATION_LINE_ARRAY_SIZE;
 	    lines = (char **) calloc(lines_size, sizeof(char *));
 	    if (lines == NULL) {
-	      fprintf(stderr, "Error at allocating memory.\n");
+	      my_write(stderr, "Error at allocating memory.\n");
 	      /* Deallocate everything we allocated */
 	      __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	      return 1;
@@ -379,7 +379,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	    tmp = lines_size + lines_size;
 	    if (tmp < lines_size) {
 	      /* Overflow on our multiplication by 2 */
-	      fprintf(stderr, "Error: this system cannot handle that many lines.");
+	      my_write(stderr, "Error: this system cannot handle that many lines.");
 	      /* Deallocate everything we allocated */
 	      __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	      return 1;
@@ -442,7 +442,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	current_line_size = FIRST_ALLOCATION_SIZE;
 	ptr = (char *) malloc(current_line_size);
 	if (ptr == NULL) {
-	  fprintf(stderr, "Error at allocating memory.\n");
+	  my_write(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	  return 1;
@@ -452,7 +452,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	tmp = current_line_size + current_line_size;
 	if (tmp < current_line_size) {
 	  /* Overflow on our multiplication by 2 */
-	  fprintf(stderr, "Error: this system cannot handle lines this long.");
+	  my_write(stderr, "Error: this system cannot handle lines this long.");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	  return 1;
@@ -460,7 +460,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	current_line_size = tmp;
 	ptr = (char *) realloc(current_line, current_line_size);
 	if (ptr == NULL) {
-	  fprintf(stderr, "Error at allocating memory.\n");
+	  my_write(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	  return 1;
@@ -487,14 +487,14 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	lines_size = FIRST_ALLOCATION_LINE_ARRAY_SIZE;
 	lines = (char **) calloc(lines_size, sizeof(char *));
 	if (lines == NULL) {
-	  fprintf(stderr, "Error at allocating memory.\n");
+	  my_write(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	  return 1;
 	}
 	lines_lengths = (size_t *) calloc(lines_size, sizeof(size_t));
 	if (lines_lengths == NULL) {
-	  fprintf(stderr, "Error at allocating memory.\n");
+	  my_write(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	  return 1;
@@ -504,7 +504,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	tmp = lines_size + lines_size;
 	if (tmp < lines_size) {
 	  /* Overflow on our multiplication by 2 */
-	  fprintf(stderr, "Error: this system cannot handle that many lines.");
+	  my_write(stderr, "Error: this system cannot handle that many lines.");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	  return 1;
@@ -512,7 +512,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	lines_size = tmp;
 	ptrt = (char **) reallocarray(lines, lines_size, sizeof(char *));
 	if (ptrt == NULL) {
-	  fprintf(stderr, "Error at allocating memory.\n");
+	  my_write(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	  return 1;
@@ -520,7 +520,7 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
 	lines = ptrt;
 	ptrtt = (size_t *) reallocarray(lines_lengths, lines_size, sizeof(size_t));
 	if (ptrtt == NULL) {
-	  fprintf(stderr, "Error at allocating memory.\n");
+	  my_write(stderr, "Error at allocating memory.\n");
 	  /* Deallocate everything we allocated */
 	  __clean_up_memory(current_line, lines, lines_lengths, lines_total);
 	  return 1;
@@ -558,13 +558,13 @@ int get_lines_from_standard_input(char ***lines_ptr, size_t **lines_lengths_ptr,
    incorrrectly.
 */
 void print_error_message_badly_formed_call(const char *head_or_tail) {
-  printf("\nThis is not a well-formed call to %s.\n", head_or_tail);
-  printf("Here are some examples of valid calls:\n");
-  printf("./%s -n 42 nanpa\n", head_or_tail);
-  printf("./%s nanpa -n 42\n", head_or_tail);
-  printf("./%s -n 42\n", head_or_tail);
-  printf("./%s nanpa\n", head_or_tail);
-  printf("./%s\n", head_or_tail);
+  my_write("\nThis is not a well-formed call to %s.\n", head_or_tail);
+  my_write("Here are some examples of valid calls:\n");
+  my_write("./%s -n 42 nanpa\n", head_or_tail);
+  my_write("./%s nanpa -n 42\n", head_or_tail);
+  my_write("./%s -n 42\n", head_or_tail);
+  my_write("./%s nanpa\n", head_or_tail);
+  my_write("./%s\n", head_or_tail);
 }
 
 
@@ -614,7 +614,7 @@ int print_certain_number_of_lines(size_t num_lines_to_print,
   
    /*Process input based on the number of lines specified
       For now, let's just print out the number of lines */
-    printf("Number of lines: %zu\n", num_lines_to_print);
+    my_write("Number of lines: %zu\n", num_lines_to_print);
 
     size_t i, k, start, stop;
 
@@ -629,7 +629,7 @@ int print_certain_number_of_lines(size_t num_lines_to_print,
     /* We need to write the first num_lines lines to standard out.*/
     for (k = start; k < stop; k++) {
         if (my_write(1, lines[k], lines_lengths[k]) < 0) {
-	fprintf(stderr, "Error while reading: %s\n", strerror(errno));
+	my_write(stderr, "Error while reading: %s\n", strerror(errno));
 
 	/* Deallocate everything we allocated */
 	for (i = 0; i < lines_total; i++) {

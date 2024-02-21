@@ -37,12 +37,17 @@ int main(int argc, char **argv) {
 	     argv[2]: The number of lines argument
 	     argv[3]: The file name
 	  */
+	  get_lines_from_file(argv[3], &lines, &lines_length, &lines_total)
+	  num_lines = argv[2]
+
         } else if (strcmp(argv[2], "-n") == 0) {
 	  /* argv[0]: The program name
 	     argv[1]: The file name
 	     argv[2]: The -n option
 	     argv[3]: The file name
 	  */
+			get_lines_from_file(argv[3], &lines, &lines_length, &lines_total)
+			num_lines = argv[2]
         } else {
 	  /* Has four arguments, but not in the correct format*/
 	  print_error_message_badly_formed_call("head");
@@ -55,25 +60,27 @@ int main(int argc, char **argv) {
 	   argv[2]: The number of lines argument
         */
         converted_num = convert_from_string_to_number(argv[2], &endptr);
+		get_lines_from_file(argv[0], &lines, &lines_length, &lines_total)
+
 
         if (endptr == argv[2]) {
 	  /* No valid digits found in the string */
-	  printf("No digits were found\n");
+	  my_write("No digits were found\n");
 	  return 1;
 	
         } else if (*endptr != '\0') {
 	  /* A valid number mixed with invalid characters */
-          printf("Invalid characters after number: %s\n", endptr);
+          my_write("Invalid characters after number: %s\n", endptr);
 	  return 1;
 	
         } else if (converted_num < 0) {
 	  /* If negative number of lines is entered do nothing*/
-	  printf("Doing nothing because negative.\n");
+	  my_write("Doing nothing because negative.\n");
 	  return 0;
 	
         } else if (converted_num >= UINT64_MAX) {
 	  num_lines = converted_num;
-	  printf("The number you entered is too large.\n");
+	  my_write("The number you entered is too large.\n");
 	  return 1;
         } else {
 	  /* Everything went well, number was converted
