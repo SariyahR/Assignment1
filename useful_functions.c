@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
 /* This function writes len bytes from the buffer buf
